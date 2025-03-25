@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 
 function TrainingScreen({ data, onComplete }) {
@@ -6,10 +7,13 @@ function TrainingScreen({ data, onComplete }) {
   useEffect(() => {
     if (stepIndex < data.sequence.length) {
       const currentStep = data.sequence[stepIndex];
+
       const speak = (text) => {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = data.audioSpeed;
-        window.speechSynthesis.speak(utterance);
+        if (data.mode !== 'visual') {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = data.audioSpeed;
+          window.speechSynthesis.speak(utterance);
+        }
       };
 
       const announceStep = () => {
@@ -36,15 +40,23 @@ function TrainingScreen({ data, onComplete }) {
     }
   }, [stepIndex, data, onComplete]);
 
+  const currentObjects = data.sequence[stepIndex] || [];
+
   return (
     <div className="training-screen">
-      <h2>Training... Step {stepIndex + 1} of {data.sequence.length}</h2>
-      <div>
-        {!data.pauseMode && <p>Watch and listen...</p>}
-        {data.pauseMode && (
-          <button onClick={() => setStepIndex(stepIndex + 1)}>Next Step</button>
-        )}
-      </div>
+      <h2>Step {stepIndex + 1} of {data.sequence.length}</h2>
+      {data.mode !== 'audio' && (
+        <div className="visual-display">
+          {currentObjects.map((obj, idx) => (
+            <div key={idx} className={`visual-object ${obj.shape}`} style={{ backgroundColor: obj.color }}>
+              {obj.number !== null ? <span>{obj.number}</span> : ''}
+            </div>
+          ))}
+        </div>
+      )}
+      {data.pauseMode && (
+        <button onClick={() => setStepIndex(stepIndex + 1)}>Next Step</button>
+      )}
     </div>
   );
 }
