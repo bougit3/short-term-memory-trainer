@@ -1,0 +1,1 @@
+Content from Settings.js as provided

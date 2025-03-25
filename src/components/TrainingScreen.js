@@ -1,0 +1,1 @@
+Content from TrainingScreen.js as provided
