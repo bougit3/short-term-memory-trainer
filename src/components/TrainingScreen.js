@@ -3,44 +3,52 @@ import React, { useEffect, useState } from 'react';
 
 function TrainingScreen({ data, onComplete }) {
   const [stepIndex, setStepIndex] = useState(0);
+  const [objectIndex, setObjectIndex] = useState(0);
+  const [isPlayingStep, setIsPlayingStep] = useState(false);
 
   useEffect(() => {
-    if (stepIndex < data.sequence.length) {
+    if (stepIndex < data.sequence.length && !isPlayingStep) {
+      setIsPlayingStep(true);
       const currentStep = data.sequence[stepIndex];
 
-      const speak = (text) => {
-        if (data.mode !== 'visual') {
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.rate = data.audioSpeed;
-          window.speechSynthesis.speak(utterance);
+      const announceNextObject = (idx) => {
+        if (idx >= currentStep.length) {
+          setTimeout(() => {
+            setIsPlayingStep(false);
+            if (!data.pauseMode) {
+              setStepIndex(stepIndex + 1);
+            }
+          }, 500);
+          return;
         }
-      };
-
-      const announceStep = () => {
-        currentStep.forEach((obj, i) => {
+        const obj = currentStep[idx];
+        if (data.mode !== 'visual') {
           const parts = [];
           if (obj.color) parts.push(`Color: ${obj.color}`);
           if (obj.number !== null) parts.push(`Number: ${obj.number}`);
           if (obj.shape) parts.push(`Shape: ${obj.shape}`);
-          speak(`Object ${i + 1}: ${parts.join(', ')}`);
-        });
+          const utterance = new SpeechSynthesisUtterance(`Object ${idx + 1}: ${parts.join(', ')}`);
+          utterance.rate = data.audioSpeed;
+          utterance.onend = () => announceNextObject(idx + 1);
+          window.speechSynthesis.speak(utterance);
+        } else {
+          // If only visual mode, just move to the next object with a timeout
+          setTimeout(() => announceNextObject(idx + 1), data.timeDelay * 1000);
+        }
       };
 
-      if (data.pauseMode) {
-        announceStep();
-      } else {
-        announceStep();
-        const timer = setTimeout(() => {
-          setStepIndex(stepIndex + 1);
-        }, data.timeDelay * 1000 + currentStep.length * 1500);
-        return () => clearTimeout(timer);
-      }
-    } else {
+      announceNextObject(0);
+    } else if (stepIndex >= data.sequence.length) {
       setTimeout(onComplete, 500);
     }
-  }, [stepIndex, data, onComplete]);
+  }, [stepIndex, data, onComplete, isPlayingStep]);
 
   const currentObjects = data.sequence[stepIndex] || [];
+
+  const handleNextStep = () => {
+    setStepIndex(stepIndex + 1);
+    setIsPlayingStep(false);
+  };
 
   return (
     <div className="training-screen">
@@ -54,8 +62,8 @@ function TrainingScreen({ data, onComplete }) {
           ))}
         </div>
       )}
-      {data.pauseMode && (
-        <button onClick={() => setStepIndex(stepIndex + 1)}>Next Step</button>
+      {data.pauseMode && !isPlayingStep && (
+        <button onClick={handleNextStep}>Next Step</button>
       )}
     </div>
   );
