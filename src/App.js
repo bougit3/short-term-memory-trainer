@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Settings from './components/Settings';
 import TrainingScreen from './components/TrainingScreen';
@@ -32,12 +33,17 @@ function App() {
         }} />
       )}
       {phase === 'results' && (
-        <ResultsScreen results={results} onRestart={() => {
-          setTrainingData(null);
-          setRecallData(null);
-          setResults(null);
-          setPhase('settings');
-        }} />
+        <ResultsScreen
+          results={results}
+          data={trainingData}
+          recallData={recallData}
+          onRestart={() => {
+            setTrainingData(null);
+            setRecallData(null);
+            setResults(null);
+            setPhase('settings');
+          }}
+        />
       )}
     </div>
   );
