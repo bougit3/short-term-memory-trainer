@@ -1,9 +1,15 @@
 
 import React, { useEffect, useState } from 'react';
 
+const shapeEmojiMap = {
+  circle: '⚪',
+  square: '⬜',
+  triangle: '🔺',
+  star: '⭐'
+};
+
 function TrainingScreen({ data, onComplete }) {
   const [stepIndex, setStepIndex] = useState(0);
-  const [objectIndex, setObjectIndex] = useState(0);
   const [isPlayingStep, setIsPlayingStep] = useState(false);
 
   useEffect(() => {
@@ -32,7 +38,6 @@ function TrainingScreen({ data, onComplete }) {
           utterance.onend = () => announceNextObject(idx + 1);
           window.speechSynthesis.speak(utterance);
         } else {
-          // If only visual mode, just move to the next object with a timeout
           setTimeout(() => announceNextObject(idx + 1), data.timeDelay * 1000);
         }
       };
@@ -56,8 +61,9 @@ function TrainingScreen({ data, onComplete }) {
       {data.mode !== 'audio' && (
         <div className="visual-display">
           {currentObjects.map((obj, idx) => (
-            <div key={idx} className={`visual-object ${obj.shape}`} style={{ backgroundColor: obj.color }}>
-              {obj.number !== null ? <span>{obj.number}</span> : ''}
+            <div key={idx} className="visual-object" style={{ backgroundColor: obj.color }}>
+              <div style={{ fontSize: '32px' }}>{shapeEmojiMap[obj.shape] || ''}</div>
+              {obj.number !== null && <div style={{ fontSize: '18px' }}>{obj.number}</div>}
             </div>
           ))}
         </div>
