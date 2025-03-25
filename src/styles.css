@@ -74,3 +74,25 @@ button:hover {
 .visual-object.star {
   width: 0; height: 0; /* Placeholder for star; can replace with icon or SVG */
 }
+
+
+.result-object {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.attribute-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.color-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #000;
+}
